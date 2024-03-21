@@ -1,6 +1,6 @@
 # Instalar dependencias
 - npm install
 
-# Compilar y Ejecutar
+# Transpilar y Ejecutar
 - npm run build
 - npm start
