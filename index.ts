@@ -1,47 +1,86 @@
-// Function to generate a random number between 100 and 200
-function rand(): number {
-  return Math.floor(Math.random() * 101) + 100; // Generates a random number between 100 and 200
-}
+// Clase que representa un tubo fluorescente individual
+class Tube {
+  usedHours: number;
 
-// Function to simulate one year of classroom usage and return the total number of broken tubes
-function simulateYear(): number {
-  let totalBrokenTubes = 0;
-  let totalWorkingHours = 15 * 5 * 4 * 9 * 4; // 15 hours/day * 5 days/week * 4 weeks/month * 9 months/year * 4 tubes/unit
-  let tubeLifeHours = Array(16).fill(rand()); // Initialize the life hours of all 16 tubes
-
-  while (totalWorkingHours > 0) {
-    for (let i = 0; i < 16; i++) {
-      if (tubeLifeHours[i] > 0) {
-        tubeLifeHours[i]--;
-        if (tubeLifeHours[i] == 0) {
-          totalBrokenTubes++;
-          if (totalBrokenTubes % 2 == 0) { // If two tubes in the same unit are broken
-            tubeLifeHours[i-1] = 0; // The other tube in the unit is also considered as broken
-            totalBrokenTubes++;
-          }
-          tubeLifeHours[i] = rand(); // Replace the broken tube
-        }
-      }
-    }
-    totalWorkingHours--;
+  constructor() {
+    this.usedHours = rand();
   }
-  return totalBrokenTubes;
+
+  // Método para verificar si el tubo está roto
+  isBroken(): boolean {
+    return this.usedHours <= 0;
+  }
+
+  // Método para decrementar las horas de uso del tubo
+  decreaseHours(): void {
+    this.usedHours--;
+  }
 }
 
-// Function to calculate the total cost of replacing tubes based on the number of broken tubes
-function calculateCost(totalBrokenTubes: number): number {
-  const tubesToReplace = totalBrokenTubes + 16; // Don't forget the cost of the first 16 tubes at the beginning of the year
-  return tubesToReplace * 7;
+// Clase que representa una unidad de tubos fluorescentes
+class TubeUnit {
+  tubes: Tube[];
+  brokenTubesCount: number;
+
+  constructor() {
+    this.tubes = Array(4).fill(new Tube());
+    this.brokenTubesCount = 0;
+  }
+
+  // Método para verificar si se necesita mantenimiento para la unidad
+  needsMaintenance(): boolean {
+    let brokenCount = 0;
+    this.tubes.forEach(tube => {
+      if (tube.isBroken()) {
+        brokenCount++;
+      }
+    });
+    return brokenCount >= 2;
+  }
+
+  // Método para reemplazar los tubos de la unidad
+  replaceTubes(): void {
+    this.tubes = this.tubes.map(() => new Tube()); // Crea una nueva matriz de tubos reemplazados
+  }
 }
 
-// Main function to execute the simulation and print the results
+// Función para generar un número aleatorio entre 100 y 200
+function rand(): number {
+  return Math.floor(Math.random() * 101) + 100; // Genera un número aleatorio entre 100 y 200
+}
+
+// Función principal para ejecutar la simulación y mostrar los resultados
 function main() {
-  const totalBrokenTubes = simulateYear();
-  const totalCost = calculateCost(totalBrokenTubes);
+  const tubeUnits: TubeUnit[] = Array(4).fill(new TubeUnit()); // Array de 4 TubeUnits
+  let totalBrokenTubesCount = 0;
+  let totalCost = 0;
 
-  console.log("1. Total broken tubes in one year:", totalBrokenTubes);
-  console.log("2. Total cost per year per classroom:", totalCost, "USD");
+  // Simula un año de uso del aula
+  for (let hour = 1; hour <= 2700; hour++) {
+    tubeUnits.forEach(unit => {
+      unit.tubes.forEach(tube => {
+        tube.decreaseHours(); // Decrementa las horas de uso del tubo
+        if (tube.isBroken()) {
+          unit.brokenTubesCount++;
+          if (unit.needsMaintenance()) {
+            unit.replaceTubes();
+          }
+        }
+      });
+    });
+  }
+
+  // Calcula el total de tubos rotos y el costo total
+  tubeUnits.forEach(unit => {
+    totalBrokenTubesCount += unit.brokenTubesCount;
+  });
+
+  // Ten en cuenta el costo de los primeros 16 tubos en el cálculo del costo total
+  totalCost = (totalBrokenTubesCount + 16) * 7;
+
+  console.log("1. Total de tubos rotos en un año:", totalBrokenTubesCount);
+  console.log("2. Costo total por año por aula:", totalCost, "USD");
 }
 
-// Execute the main function
+// Ejecuta la función principal
 main();
