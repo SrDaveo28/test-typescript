@@ -75,7 +75,7 @@ function main() {
     totalBrokenTubesCount += unit.brokenTubesCount;
   });
 
-  // Ten en cuenta el costo de los primeros 16 tubos en el cálculo del costo total
+  // Costo de los primeros 16 tubos en el cálculo del costo total
   totalCost = (totalBrokenTubesCount + 16) * 7;
 
   console.log("1. Total de tubos rotos en un año:", totalBrokenTubesCount);
